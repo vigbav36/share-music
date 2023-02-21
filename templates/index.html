@@ -8,22 +8,9 @@
         <hr>
         <div class="content">
             {% if session.name %}
-                You are logged in as {{ session.name }} <a href="{{ url_for('logout') }}">login</a>.
-                
+                You are logged in as {{ session.name }} <a href="{{ url_for('logout') }}">logout</a>.
+                <a href="{{ url_for('upload') }}">UPLOAD MUSIC</a>
                 {% for user in users %}
-                <div class="student">
-                    <p><b>#{{ user.id }}</b></p>
-                    <b>
-                        <p class="name">{{ user.name }} </p>
-                    </b>
-                    <p>{{ user.email }}</p>
-                    <p>{{ user.age }} years old.</p>
-                    <p></p>
-                    <div class="bio">
-                        <h4>Bio</h4>
-                        <p>{{ user.bio }}</p>
-                    </div>
-                </div>
                 {% endfor %}
 
             {% else %}

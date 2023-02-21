@@ -1,8 +1,9 @@
 import os
-from flask import Flask, render_template, request, url_for, redirect, session
+from flask import Flask, render_template, request, url_for, redirect, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_migrate import Migrate, migrate
+import uuid
  
 # Settings for migrations
 
@@ -12,6 +13,7 @@ from sqlalchemy.sql import func
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+
 app.config['SQLALCHEMY_DATABASE_URI'] =\
     'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -23,6 +25,8 @@ migrate = Migrate(app, db)
 
 Session(app)
 
+UPLOAD_FOLDER = os.path.join(basedir, 'songs')
+ALLOWED_EXTENSIONS = {'mp3'}
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -69,3 +73,44 @@ def login():
 def logout():
     session["name"] = None
     return redirect("/")
+
+def allowed_file(filename):
+    return '.' in filename and \
+            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/upload',methods=["POST","GET"])
+def upload():
+    if request.method == "POST":
+        id = uuid.uuid1()
+        file_loc = os.path.join(UPLOAD_FOLDER, str(id)+".mp3")
+
+        song = Song(
+            id = id,
+            url = "/play/"+str(id),
+            title = request.form.get("title"),
+            artist = request.form.get("artist"),
+            user = session["name"],
+            album= request.form.get("album"),
+            file_loc = file_loc
+        )
+        
+        if 'file' not in request.files:
+            print("err1")
+            return redirect(request.url)
+
+        file = request.files['file']
+        
+        if file.filename == '':
+            flash('No selected file')
+            print("err2")
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+            file.save(file_loc)
+            return render_template("index.html")
+    else:
+        return render_template("upload.html")
+        
+
+
+
