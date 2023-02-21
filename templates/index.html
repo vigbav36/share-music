@@ -1,0 +1,34 @@
+<html>
+    <body>
+        <nav>
+            <a href="{{ url_for('index') }}">FlaskApp</a>
+            <a href="#">Create</a>
+            <a href="#">About</a>
+        </nav>
+        <hr>
+        <div class="content">
+            {% if session.name %}
+                You are logged in as {{ session.name }} <a href="{{ url_for('logout') }}">login</a>.
+                
+                {% for user in users %}
+                <div class="student">
+                    <p><b>#{{ user.id }}</b></p>
+                    <b>
+                        <p class="name">{{ user.name }} </p>
+                    </b>
+                    <p>{{ user.email }}</p>
+                    <p>{{ user.age }} years old.</p>
+                    <p></p>
+                    <div class="bio">
+                        <h4>Bio</h4>
+                        <p>{{ user.bio }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+
+            {% else %}
+                You are not logged in. <a href="{{ url_for('login') }}">login</a>.
+        {% endif %}
+        </div>
+    </body>
+</html>
