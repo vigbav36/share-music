@@ -1,5 +1,5 @@
 import os
-from flask import Flask, jsonify, render_template, request, url_for, redirect, session, flash, send_from_directory
+from flask import Flask, jsonify, render_template, request, send_file, url_for, redirect, session, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_migrate import Migrate, migrate
@@ -33,9 +33,14 @@ ALLOWED_EXTENSIONS = {'mp3'}
 @app.route('/song/<path:filename>')
 def song(filename):
     filename = os.path.basename(filename)
-    print(filename)
+    #print(filename)
     return send_from_directory(UPLOAD_FOLDER, filename)
 
+@app.route('/download/<path:filename>/<title>')
+def download(filename,title):
+    filename = os.path.basename(filename)
+    #print(filename)
+    return send_from_directory(UPLOAD_FOLDER,filename,as_attachment=True,download_name=f'{title}.mp3')
 
 class User(db.Model):
     id = db.Column(db.String(200), primary_key=True)
@@ -90,6 +95,9 @@ def allowed_file(filename):
 
 @app.route('/upload',methods=["POST","GET"])
 def upload():
+    #if session["id"] is None:
+    #   return login()
+
     if request.method == "POST":
         
         if 'file' not in request.files:
@@ -113,7 +121,7 @@ def upload():
                     id = id,
                     url = str("/play/"+str(id)),
                     title = str(request.form.get("title")),
-                    artist = str(request.form.get("artist")),
+                    artist = str(session["name"]),
                     user = str(session["id"]),
                     album= str(request.form.get("album")),
                     file_loc = str(file_loc)
@@ -181,6 +189,7 @@ def profile(user_id):
 def delete(song_id):
     
     if request.method == "GET":
+
         song = Song.query.filter_by(id=song_id).first()
 
         if session["id"] is None or session["id"]!=song.user:
@@ -201,4 +210,10 @@ def delete(song_id):
             return jsonify({'message': f'Error deleting file: {e}'}), 500
 
         return profile(session["id"])
-        
+
+
+@app.route('/album/<user_id>/<album>')
+def album(user_id,album):
+    songs = Song.query.filter_by(user=user_id,album=album).all()
+    return render_template("album.html",album=album,songs=songs)
+    

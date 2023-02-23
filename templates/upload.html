@@ -1,24 +1,20 @@
 <body>
     <nav>
-        <a href="{{ url_for('index') }}">FlaskApp</a>
-        <a href="#">Create</a>
-        <a href="#">About</a>
+        <a href="{{ url_for('index') }}">HOME</a>
+        <a href="{{ url_for('logout') }}">LOGOUT</a>.
     </nav>
     <hr>
     <div class="content">
         {% if session.name %}
-            You are logged in as {{ session.name }} <a href="{{ url_for('logout') }}">logout</a>.
-            
+            <a href="{{ url_for('logout') }}">logout</a>.
             
             <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
                 <input placeholder="title" autocomplete="off" type="text" name="title">
-                <input placeholder="artist" autocomplete="off" type="text" name="artist">
                 <input placeholder="album" autocomplete="off" type="text" name="album">
                 <input placeholder="mp3 file" autocomplete="off" type="file" name="file" />
                 <input type="submit" value="Upload" name="upload">
              </form>
-         
-
+             
         {% else %}
             You are not logged in. <a href="{{ url_for('login') }}">login</a>.
     {% endif %}

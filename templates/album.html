@@ -1,0 +1,21 @@
+<html>
+    <body>
+        <nav>
+            <a href="{{ url_for('index') }}">HOME</a>
+            <a href="{{ url_for('logout') }}">LOGOUT</a>.
+            
+        </nav>
+        <h3>ALBUM - {{ album }}</h3>
+        <p>created by user {{ songs[0].artist }}</p>
+        {% for song in songs %}
+            <div>
+                <h3>{{ song.title.upper() }}</h3> 
+                <a href="{{ url_for('profile',user_id=song.user) }}"><p>By - {{ song.artist }}</p></a>
+                {% if song.album %}
+                    <p>Album - {{ song.album }}</p>
+                {% endif %}
+                <a href="{{ song.url }}">PLAY</a>
+            <div>
+        {% endfor %}
+    </body>
+</html>

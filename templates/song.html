@@ -1,10 +1,20 @@
 <html>
     <body>
-        <h1>{{ song.title }}</h1>
+        <nav>
+            <a href="{{ url_for('index') }}">HOME</a>
+            <a href="{{ url_for('logout') }}">LOGOUT</a>.
+        </nav>
+        <section>
+        <h1>{{ song.title.upper() }}</h1>
+        <a href="{{ url_for('album',user_id=song.user, album=song.album) }}">ALBUM: {{ song.album }}</a>
+        <a href="{{ url_for('profile',user_id=song.user) }}"><p>By - {{ song.artist }}</p></a>
+
         <audio controls autoplay>
             {% set extension = ".mp3" %}
             <source src="{{ url_for('song', filename=song.file_loc) }}" type="audio/mpeg">
           Your browser does not support the audio element.
         </audio>    
+        <a href="{{ url_for('download', filename=song.file_loc,title=song.title) }}">DOWNLOAD</a>
+        </section>
     </body>
 </html>
