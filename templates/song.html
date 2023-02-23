@@ -1,0 +1,10 @@
+<html>
+    <body>
+        <h1>{{ song.title }}</h1>
+        <audio controls autoplay>
+            {% set extension = ".mp3" %}
+            <source src="{{ url_for('song', filename=song.file_loc) }}" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>    
+    </body>
+</html>

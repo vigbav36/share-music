@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, url_for, redirect, session, flash
+from flask import Flask, jsonify, render_template, request, url_for, redirect, session, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_migrate import Migrate, migrate
@@ -23,10 +23,19 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 migrate = Migrate(app, db)
 
+
 Session(app)
 
 UPLOAD_FOLDER = os.path.join(basedir, 'songs')
 ALLOWED_EXTENSIONS = {'mp3'}
+
+
+@app.route('/song/<path:filename>')
+def song(filename):
+    filename = os.path.basename(filename)
+    print(filename)
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
 
 class User(db.Model):
     id = db.Column(db.String(200), primary_key=True)
@@ -54,7 +63,6 @@ class Song(db.Model):
 @app.route('/')
 def index():
     songs = Song.query.all()
-    print(songs)
     return render_template('index.html',songs=songs,search=False)
     
 @app.route('/login',methods=["POST","GET"])
@@ -64,7 +72,8 @@ def login():
         user_password = request.form.get("password")
         user = User.query.filter_by(email=user_email).all()[0]
         if(user.password == user_password):
-            session["name"] = user.name
+            session['name'] = user.name
+            session['id'] = user.id
             return redirect("/")
         else:
             return render_template("login.html")
@@ -105,7 +114,7 @@ def upload():
                     url = str("/play/"+str(id)),
                     title = str(request.form.get("title")),
                     artist = str(request.form.get("artist")),
-                    user = str(session["name"]),
+                    user = str(session["id"]),
                     album= str(request.form.get("album")),
                     file_loc = str(file_loc)
                 )
@@ -152,3 +161,44 @@ def search():
             songs_album=exact_match_album
 
         return render_template("index.html",songs_title=songs_title,songs_artist=songs_artist,songs_album=songs_album,search=True)
+
+@app.route('/play/<song_id>')
+def play(song_id):
+    song = Song.query.filter_by(id=song_id).all()
+    if len(song) == 0:
+        return jsonify({'message': f':File has been deleted or removed'}), 500
+    else:
+        return render_template("song.html",song=song[0])
+
+
+@app.route('/profile/<user_id>')
+def profile(user_id):
+    songs_uploaded = Song.query.filter_by(user=user_id).all()
+    return render_template("profile.html",songs=songs_uploaded,user_id=user_id)
+
+
+@app.route('/delete/<song_id>', methods=['GET'])
+def delete(song_id):
+    
+    if request.method == "GET":
+        song = Song.query.filter_by(id=song_id).first()
+
+        if session["id"] is None or session["id"]!=song.user:
+            return login()
+        try:
+            db.session.delete(song)
+            db.session.commit()
+
+            try:
+                print(song.file_loc)
+                os.remove(os.path.normpath(song.file_loc))
+            
+            except Exception as e:
+                return jsonify({'message': f'Error deleting file: {e}'}), 500
+
+
+        except Exception as e:
+            return jsonify({'message': f'Error deleting file: {e}'}), 500
+
+        return profile(session["id"])
+        

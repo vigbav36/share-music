@@ -1,0 +1,20 @@
+<html>
+    <body>
+        {% if session.name %}
+            <p>USER {{ session.name }} SONGS ARE</p>
+            {% for song in songs %}
+            <p>{{ song.title }} by {{ song.artist }}</p>
+            <a href="{{ song.url }}">link</a>
+            <p>{{ session.id }}</p>
+            <p>{{ user_id }}</p>
+            {% if session.id == user_id %}
+                <form method="GET" action="{{ url_for('delete', song_id=song.id) }}">
+                    <input type="submit" value="Delete">
+                </form>
+            {% endif %}
+            {% endfor %}
+        {% else %}
+            You are not logged in. <a href="{{ url_for('login') }}">login</a>.
+        {% endif %}
+    </body>
+</html>

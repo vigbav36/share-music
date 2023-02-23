@@ -9,10 +9,39 @@
         <div class="content">
             {% if session.name %}
                 You are logged in as {{ session.name }} <a href="{{ url_for('logout') }}">logout</a>.
+                <a href="{{ url_for('profile',user_id=session.id) }}">PROFILE</a>
                 <a href="{{ url_for('upload') }}">UPLOAD MUSIC</a>
-                {% for user in users %}
-                {% endfor %}
+                <div>
+                    <form action="{{ url_for('search') }}" method="POST">
+                        <input placeholder="search" autocomplete="off" type="text" name="search">
+                        <input type="submit" name="search">
+                     </form>
+                </div>
+                {% if search==True %}
+                    <h3>Songs</h3>
+                    {% for song in songs_title %}
+                    <p>{{ song.title }} by {{ song.artist }}</p>
+                    <a href="{{ song.url }}">link</a>
+                    {% endfor %}
 
+                    <h3>Artists</h3>
+                    {% for song in songs_artist %}
+                    <p>{{ song.title }} by {{ song.artist }}</p>
+                    <a href="{{ song.url }}">link</a>
+                    {% endfor %}
+
+                    <h3>Albums</h3>
+                    {% for song in songs_album %}
+                    <p>{{ song.title }} by {{ song.artist }}</p>
+                    <a href="{{ song.url }}">link</a>
+                    {% endfor %}
+
+                {% else %}
+                    {% for song in songs %}
+                    <p>{{ song.title }} by {{ song.artist }}</p>
+                    <a href="{{ song.url }}">link</a>
+                    {% endfor %}
+                {% endif %}
             {% else %}
                 You are not logged in. <a href="{{ url_for('login') }}">login</a>.
         {% endif %}
