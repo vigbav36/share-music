@@ -30,16 +30,17 @@ Clone the project
 Go to the project directory
 
 ```bash
-  cd music
+  cd share-music
 ```
 
 Create a virtual environment
 
 ```bash
   sudo apt install python3-venv
-  python3 -m venv my-project-env
 ```
-
+```bash
+ python3 -m venv my-project-env
+```
 Activate virtual environment
 
 ```bash
