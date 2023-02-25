@@ -3,27 +3,31 @@
         <nav>
             <a href="{{ url_for('index') }}">HOME</a>
             <a href="{{ url_for('logout') }}">LOGOUT</a>.
-            <a href="#">About</a>
         </nav>
         <section>
-            {% if session.name %}
-            <p>USER {{ session.name }}</p>
-            <a href="{{ url_for('upload') }}">UPLOAD MUSIC</a>    
-            <p>SONGS UPLOADED:</p>
-            {% for song in songs %}
-            <p>{{ song.title }} by {{ song.artist }}</p>
-            <a href="{{ song.url }}">link</a>
-            <p>{{ session.id }}</p>
-            <p>{{ user_id }}</p>
+        
+            <p>USER {{ user_name }}</p>
             {% if session.id == user_id %}
-                <form method="GET" action="{{ url_for('delete', song_id=song.id) }}">
-                    <input type="submit" value="Delete">
-                </form>
-            {% endif %}
+                <a href="{{ url_for('upload') }}">UPLOAD MUSIC</a>   
+            {% endif %} 
+            <h3>SONGS UPLOADED:</h3>
+            {% for song in songs %}
+                
+                <a href="{{ song.url }}"><p>{{ song.title }}</p></a><br>
+                
+                {% if session.id == user_id %}
+                    <form method="GET" action="{{ url_for('delete', song_id=song.id) }}">
+                        <input type="submit" value="Delete">
+                    </form>
+                {% endif %}
             {% endfor %}
-        {% else %}
-            You are not logged in. <a href="{{ url_for('login') }}">login</a>.
-        {% endif %}
+
+            <h4>ALBUMS UPLOADED:</h4>
+            {% for album in albums %}
+                <a href="{{ url_for('album',user_id=user_id, album=album) }}"><p>{{ album.upper() }}</p></a>
+            {% endfor %}
+       
+        
         </section>
     </body>
 </html>

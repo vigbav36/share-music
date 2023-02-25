@@ -15,6 +15,11 @@
           Your browser does not support the audio element.
         </audio>    
         <a href="{{ url_for('download', filename=song.file_loc,title=song.title) }}">DOWNLOAD</a>
+        {% if session.id == song.user %}
+            <form method="GET" action="{{ url_for('delete', song_id=song.id) }}">
+                <input type="submit" value="Delete">
+            </form>
+        {% endif %}
         </section>
     </body>
 </html>

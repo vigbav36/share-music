@@ -14,7 +14,7 @@
                 <input placeholder="mp3 file" autocomplete="off" type="file" name="file" />
                 <input type="submit" value="Upload" name="upload">
              </form>
-             
+        <h1>{{ error }}</h1>
         {% else %}
             You are not logged in. <a href="{{ url_for('login') }}">login</a>.
     {% endif %}

@@ -10,6 +10,9 @@
             {% if session.name %}
                 
                 <a href="{{ url_for('profile',user_id=session.id) }}">PROFILE</a>
+                
+                <a href="{{ url_for('upload') }}">UPLOAD MUSIC</a>   
+                
                 <p><br></p>
                 <div>
                     <form action="{{ url_for('search') }}" method="POST">
@@ -18,50 +21,49 @@
                      </form>
                 </div>
                 {% if search==True %}
-                    <p>SEARCH RESULTS ARE: </p>
+                    <p>SEARCH RESULTS ARE: </p><br>
+                    <h4>SONGS:</h4>
                     {% for song in songs_title %}
                     <div>
-                        <h3>{{ song.title.upper() }}</h3> 
+                        <a href="{{ song.url }}"><p>{{ song.title.upper() }}</p> </a>
                         <a href="{{ url_for('profile',user_id=song.user) }}"><p>By - {{ song.artist }}</p></a>
                         {% if song.album %}
                             <a href="{{ url_for('album',user_id=song.user, album=song.album) }}">ALBUM: {{ song.album }}</a>
                         {% endif %}
-                        <a href="{{ song.url }}">PLAY</a>
                     </div>
                     {% endfor %}
-
-                    {% for song in songs_artist %}
-                    <div>
-                        <h3>{{ song.title.upper() }}</h3> 
-                        <a href="{{ url_for('profile',user_id=song.user) }}"><p>By - {{ song.artist }}</p></a>
-                        {% if song.album %}
-                            <a href="{{ url_for('album',user_id=song.user, album=song.album) }}">ALBUM: {{ song.album }}</a>
-                        {% endif %}
-                        <a href="{{ song.url }}">PLAY</a>
+                    <br>
+                    <h4>ARTISTS: </h4>
+                    {% for artist in artists %}
+                    <div> 
+                        <a href="{{ url_for('profile',user_id=artist.id) }}">{{ artist.name }}</a><br>
                     </div>
                     {% endfor %}
+                    <br>
+                    <h4>ALBUMS: </h4>
                     {% for song in songs_album %}
                     <div>
-                        <a href="{{ url_for('album',user_id=song.user, album=song.album) }}"><h3>{{ song.album.upper() }}<br></h3></a>
+                        <a href="{{ url_for('album',user_id=song.user, album=song.album) }}"><p>{{ song.album.upper() }}</p></a>
                         <a href="{{ url_for('profile',user_id=song.user) }}"><p>By - {{ song.artist }}</p></a>
                     </div>
                     {% endfor %}
 
                 {% else %}
+                    <h4>ALL SONGS : </h4>
                     {% for song in songs %}
-                    <p>ALL SONGS : </p>
                     <div>
-                        <h3>{{ song.title.upper() }}</h3> 
+                        <a href="{{ song.url }}"><p>{{ song.title.upper() }}</p> </a>
                         <a href="{{ url_for('profile',user_id=song.user) }}"><p>By - {{ song.artist }}</p></a>
                         {% if song.album %}
-                            <p><a href="{{ url_for('album',user_id=song.user, album=song.album) }}">ALBUM: {{ song.album }}<br></a></p>
+                            <a href="{{ url_for('album',user_id=song.user, album=song.album) }}">ALBUM: {{ song.album }}</a>
                         {% endif %}
-                        <a href="{{ song.url }}">PLAY</a>
                     </div>
+                    <br>
                     {% endfor %}
                 {% endif %}
             {% else %}
                 You are not logged in. <a href="{{ url_for('login') }}">LOGIN</a>.
+                <a href="{{ url_for('signup') }}">SIGNUP</a>.
         {% endif %}
         </div>
         </section>

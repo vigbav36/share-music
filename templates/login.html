@@ -1,10 +1,15 @@
 <html>
     <body>
+        <nav>
+            <a href="{{ url_for('index') }}">HOME</a>
+            <a href="{{ url_for('logout') }}">LOGOUT</a>.
+        </nav>
         <h1> LOGIN </h1>
         <form action="{{ url_for('login') }}" method="POST">
            <input placeholder="Email" autocomplete="off" type="text" name="email">
            <input placeholder="Password" autocomplete="off" type="text" name="password">
            <input type="submit" name="login" value="LOGIN">
         </form>
+        <h3>{{ error }}</h3>
     <body>
 </html>
