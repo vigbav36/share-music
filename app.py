@@ -75,14 +75,47 @@ def login():
     if request.method == "POST":
         user_email = request.form.get("email")
         user_password = request.form.get("password")
-        user = User.query.filter_by(email=user_email).all()[0]
+        user = User.query.filter_by(email=user_email).first()
+        if user is None :
+            return render_template("login.html",error="user does not exist");
         if(user.password == user_password):
             session['name'] = user.name
             session['id'] = user.id
             return redirect("/")
         else:
-            return render_template("login.html")
+            return render_template("login.html",error="incorrect password")
     return render_template("login.html")
+
+@app.route('/signup',methods=["POST","GET"])
+def signup():
+    if request.method == "POST":
+        user_email = request.form.get("email")
+        user_password = request.form.get("password")
+        user_name = request.form.get("name")
+        user_bio = request.form.get("bio")
+        user_age = request.form.get("age")
+        user = User.query.filter_by(email=user_email).all()
+        if len(user) > 0:
+            return render_template("signup.html",error="Account already exists with this mail id");
+        try:
+            id = str(uuid.uuid1().hex)
+            user = User(
+                id = id,
+                email = user_email,
+                password = user_password,
+                name = user_name.lower(),
+                bio = user_bio,
+                age = int(user_age)
+            )
+            db.session.add(user)
+            db.session.commit()
+
+            return render_template("login.html")
+
+        except Exception as e: 
+            return render_template("signup.html",error=e)
+
+    return render_template("signup.html")
 
 @app.route("/logout")
 def logout():
@@ -101,15 +134,12 @@ def upload():
     if request.method == "POST":
         
         if 'file' not in request.files:
-            print("err1")
-            return redirect(request.url)
+            return render_template("upload.html",error="No file Selected")
 
         file = request.files['file']
         
         if file.filename == '':
-            flash('No selected file')
-            print("err2")
-            return redirect(request.url)
+            return render_template("upload.html",error="No File Selected")
 
         if file and allowed_file(file.filename):
             
@@ -120,19 +150,21 @@ def upload():
                 song = Song(
                     id = id,
                     url = str("/play/"+str(id)),
-                    title = str(request.form.get("title")),
-                    artist = str(session["name"]),
+                    title = str(request.form.get("title")).lower(),
+                    artist = str(session["name"]).lower(),
                     user = str(session["id"]),
-                    album= str(request.form.get("album")),
+                    album= str(request.form.get("album")).lower(),
                     file_loc = str(file_loc)
                 )
                 db.session.add(song)
                 db.session.commit()
 
-            except Exception as e: print(e)
+            except Exception as e: 
+                return render_template("upload.html",error=e)
             
-            print(song.url," ",song.file_loc)
             return index()
+        else:
+            return render_template("upload.html",error="Choose mp3 file")
     else:
         return render_template("upload.html")
         
@@ -140,13 +172,13 @@ def upload():
 def search():
     if request.method == "POST":
 
-        search_query = request.form.get("search")
+        search_query = request.form.get("search").lower()
 
         if search_query=="":
             return index()
        
         exact_match_title = Song.query.filter_by(title=search_query).all()
-        exact_match_artist = Song.query.filter_by(artist=search_query).all()
+        exact_match_artist = User.query.filter_by(name=search_query).all()
         exact_match_album = Song.query.filter_by(album=search_query).all()
 
         if len(exact_match_title) == 0:
@@ -157,10 +189,10 @@ def search():
             songs_title=exact_match_title
         
         if len(exact_match_artist) == 0:
-            close_match_artist = Song.query.filter(Song.artist.op('regexp')(rf'[.]*{search_query}[.]*')).all()
-            songs_artist=close_match_artist
+            close_match_artist = User.query.filter(User.name.op('regexp')(rf'[.]*{search_query}[.]*')).all()
+            artists=close_match_artist
         else:
-            songs_artist=exact_match_artist
+            artists=exact_match_artist
 
         if len(exact_match_album) == 0:
             close_match_album = Song.query.filter(Song.album.op('regexp')(rf'[.]{search_query}[.]*')).all()
@@ -168,7 +200,7 @@ def search():
         else:
             songs_album=exact_match_album
 
-        return render_template("index.html",songs_title=songs_title,songs_artist=songs_artist,songs_album=songs_album,search=True)
+        return render_template("index.html",songs_title=songs_title,artists=artists,songs_album=songs_album,search=True)
 
 @app.route('/play/<song_id>')
 def play(song_id):
@@ -182,7 +214,11 @@ def play(song_id):
 @app.route('/profile/<user_id>')
 def profile(user_id):
     songs_uploaded = Song.query.filter_by(user=user_id).all()
-    return render_template("profile.html",songs=songs_uploaded,user_id=user_id)
+    albums=set()
+    for song in songs_uploaded:
+        albums.add(song.album)
+
+    return render_template("profile.html",songs=songs_uploaded,user_id=user_id,user_name=User.query.filter_by(id=user_id).first().name,albums=albums)
 
 
 @app.route('/delete/<song_id>', methods=['GET'])
