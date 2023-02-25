@@ -24,49 +24,49 @@ A simple web application where we can upload and search for songs.
 Clone the project
 
 ```bash
-  git clone https://github.com/vigbav36/share-music.git
+git clone https://github.com/vigbav36/share-music.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd share-music
+cd share-music
 ```
 
 Create a virtual environment
 
 ```bash
-  sudo apt install python3-venv
+sudo apt install python3-venv
 ```
 ```bash
- python3 -m venv my-project-env
+python3 -m venv my-project-env
 ```
 Activate virtual environment
 
 ```bash
-  source my-project-env/bin/activate
+source my-project-env/bin/activate
 ```
 
 Install dependencies
 
 ```bash
-  pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Start the server
 
 ```bash
-  flask run
+flask run
 ```
 
 
 ## Existing sample login creds for application
 
 ```txt
-    User Name           password
+User Name           password
 
-    vig@mail.com        123
-    bav@mail.com        123
-    bav123@mail.com     123
+vig@mail.com        123
+bav@mail.com        123
+bav123@mail.com     123
 ```
 
