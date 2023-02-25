@@ -5,9 +5,7 @@
     </nav>
     <hr>
     <div class="content">
-        {% if session.name %}
-            <a href="{{ url_for('logout') }}">logout</a>.
-            
+        {% if session.name %} 
             <form action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
                 <input placeholder="title" autocomplete="off" type="text" name="title">
                 <input placeholder="album" autocomplete="off" type="text" name="album">
