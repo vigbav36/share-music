@@ -2,4 +2,3 @@ __pycache__
 env
 flask_session
 migrations
-songs
