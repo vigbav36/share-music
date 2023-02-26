@@ -158,7 +158,7 @@ def upload():
                     artist = str(session["name"]).lower(),
                     user = str(session["id"]),
                     album= str(request.form.get("album")).lower(),
-                    file_loc = str(file_loc)
+                    file_loc = str(str(id)+".mp3")
                 )
                 db.session.add(song)
                 db.session.commit()
@@ -255,7 +255,8 @@ def delete(song_id):
 
             try:
                 print(song.file_loc)
-                os.remove(os.path.normpath(song.file_loc))
+                
+                os.remove(os.path.normpath(os.path.join(UPLOAD_FOLDER, song.file_loc)))
             
             except Exception as e:
                 return jsonify({'message': f'Error deleting file: {e}'}), 500
