@@ -63,10 +63,7 @@ flask run
 ## Existing sample login creds for application
 
 ```txt
-User Name           password
-
-vig@mail.com        123
-bav@mail.com        123
-bav123@mail.com     123
+User Name - vig@mail.com        
+Password - 123
 ```
 
