@@ -4,14 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_session import Session
 from flask_migrate import Migrate, migrate
 import uuid
- 
-# Settings for migrations
-
-
 from sqlalchemy.sql import func
 
-basedir = os.path.abspath(os.path.dirname(__file__))
 
+"""
+Initial flask app configurations
+"""
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] =\
@@ -22,56 +22,47 @@ db = SQLAlchemy(app)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 migrate = Migrate(app, db)
-
-
 Session(app)
 
 UPLOAD_FOLDER = os.path.join(basedir, 'songs')
 ALLOWED_EXTENSIONS = {'mp3'}
 
+from models import Song,User
+
+"""
+Application Routing Logic
+"""
 
 @app.route('/song/<path:filename>')
 def song(filename):
+    """
+    Fetch mp3 files from the songs directory
+    """
     filename = os.path.basename(filename)
-    #print(filename)
     return send_from_directory(UPLOAD_FOLDER, filename)
 
 @app.route('/download/<path:filename>/<title>')
 def download(filename,title):
+    """
+    Download mp3 files from the songs directory
+    """
     filename = os.path.basename(filename)
-    #print(filename)
     return send_from_directory(UPLOAD_FOLDER,filename,as_attachment=True,download_name=f'{title}.mp3')
-
-class User(db.Model):
-    id = db.Column(db.String(200), primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    age = db.Column(db.Integer)
-    email = db.Column(db.String(80), unique=True, nullable=False)
-    bio = db.Column(db.Text)
-    password = db.Column(db.String(100), nullable=False)
-
-    def __repr__(self):
-        return f'<User {self.name} email {self.email}>'
-
-class Song(db.Model):
-    id = db.Column(db.String(500), primary_key=True)
-    url = db.Column(db.String(500),unique=True ,nullable=False)
-    title = db.Column(db.String(100), nullable=False)
-    artist = db.Column(db.String(100), nullable=False)
-    user = db.Column(db.String(100), nullable=False)
-    album = db.Column(db.String(100), nullable=True)
-    file_loc = db.Column(db.String(600), nullable=False)
-
-    def __repr__(self):
-        return f'<Song {self.title} artist {self.artist}>'
 
 @app.route('/')
 def index():
+    """
+    Home page
+    """
     songs = Song.query.all()
     return render_template('index.html',songs=songs,search=False)
     
 @app.route('/login',methods=["POST","GET"])
 def login():
+    """
+    User can login with their email id
+    Exception handling for wrong credentials 
+    """
     if request.method == "POST":
         user_email = request.form.get("email")
         user_password = request.form.get("password")
@@ -88,6 +79,10 @@ def login():
 
 @app.route('/signup',methods=["POST","GET"])
 def signup():
+    """
+    User can signup with their mail id and add other relevant bio data
+    Exception handling for wrong credentials 
+    """
     if request.method == "POST":
         user_email = request.form.get("email")
         user_password = request.form.get("password")
@@ -119,18 +114,27 @@ def signup():
 
 @app.route("/logout")
 def logout():
+    """
+    User can logout 
+    """
     session["name"] = None
     return redirect("/")
 
 def allowed_file(filename):
+    """
+    To check if a file is an mp3 file
+    """
     return '.' in filename and \
             filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/upload',methods=["POST","GET"])
 def upload():
-    #if session["id"] is None:
-    #   return login()
-
+    """
+    The songs are uploaded in the songs folder
+    The id for the song is created using uuid library
+    The file name is renamed to <song_id><.mp3> format
+    The database is also updated
+    """
     if request.method == "POST":
         
         if 'file' not in request.files:
@@ -170,6 +174,11 @@ def upload():
         
 @app.route("/search", methods=["POST","GET"])
 def search():
+    """
+    Search query is used to match for songs, artists, and albums
+    If there are no exact matches then we use a regular expression to find the closest matches
+    The result is displayed seperately for songs, artists and albums
+    """
     if request.method == "POST":
 
         search_query = request.form.get("search").lower()
@@ -204,6 +213,10 @@ def search():
 
 @app.route('/play/<song_id>')
 def play(song_id):
+    """
+    Songs are fetched by their custom url that includes its id
+    Every song has a dedicated page to stream and download it
+    """
     song = Song.query.filter_by(id=song_id).all()
     if len(song) == 0:
         return jsonify({'message': f':File has been deleted or removed'}), 500
@@ -213,6 +226,10 @@ def play(song_id):
 
 @app.route('/profile/<user_id>')
 def profile(user_id):
+    """
+    Every user/artist is given a profile page
+    It contains the songs and albums uploaded by the user
+    """
     songs_uploaded = Song.query.filter_by(user=user_id).all()
     albums=set()
     for song in songs_uploaded:
@@ -223,7 +240,9 @@ def profile(user_id):
 
 @app.route('/delete/<song_id>', methods=['GET'])
 def delete(song_id):
-    
+    """
+    Songs can be deleted from both the databse and the local storage in the songs directory
+    """
     if request.method == "GET":
 
         song = Song.query.filter_by(id=song_id).first()
@@ -250,6 +269,9 @@ def delete(song_id):
 
 @app.route('/album/<user_id>/<album>')
 def album(user_id,album):
+    """
+    Album view page that has all the songs in that album
+    """
     songs = Song.query.filter_by(user=user_id,album=album).all()
     return render_template("album.html",album=album,songs=songs)
     
