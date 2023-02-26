@@ -14,7 +14,7 @@ A simple web application where we can upload and search for songs.
 * Every user has a profile that lists songs and albums uploaded by the user
 ## Tech Stack
 
-**Client:** HTML, CSS
+**Client:** HTML
 
 **Server:** Flask, SQLite
 
